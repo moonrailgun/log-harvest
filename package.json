@@ -1,0 +1,18 @@
+{
+  "name": "log-harvest",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/moonrailgun/log-harvest.git"
+  },
+  "author": "moonrailgun",
+  "license": "MIT",
+  "dependencies": {
+    "tail": "^1.2.3"
+  }
+}
