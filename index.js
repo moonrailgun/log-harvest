@@ -1,5 +1,4 @@
 const Tail = require('tail').Tail;
-const isStartWithSpaceRE = /^\s/;
 
 module.exports = function(logpath, options) {
   this.path = logpath;
@@ -8,13 +7,15 @@ module.exports = function(logpath, options) {
   this.checkLog = options.checkLog || null
   this.error = options.error || null
   this.output = options.output || null
+  this.startRE = options.startRE || /^\S/
 
   let tail = new Tail(logpath);
   let prevLog = '';
   let currentLog = '';
 
   tail.on("line", (data) => {
-    if(isStartWithSpaceRE.test(data)) {
+    if(!this.startRE.test(data)) {
+      // 多行日志
       currentLog += '\n' + data;
       return;
     }
