@@ -1,19 +1,24 @@
 const Tail = require('tail').Tail;
+const fs = require('fs');
 
 module.exports = function(logpath, options) {
   this.path = logpath;
   this.logs = [];
   this.maxLine = 1000;
-  this.checkLog = options.checkLog || null
-  this.error = options.error || null
-  this.output = options.output || null
-  this.startRE = options.startRE || /^\S/
+  this.checkLog = options.checkLog || null;
+  this.error = options.error || null;
+  this.output = options.output || null;
+  this.startRE = options.startRE || /^\S/;
+  this.lineNum = fs.readFileSync(logpath, 'utf-8').split("\n").length || 0;
 
+  console.log('[log-harvest]', 'starting watch file:', logpath);
   let tail = new Tail(logpath);
   let prevLog = '';
   let currentLog = '';
 
   tail.on("line", (data) => {
+    this.lineNum++;
+
     if(!this.startRE.test(data)) {
       // 多行日志
       currentLog += '\n' + data;
@@ -44,6 +49,6 @@ module.exports = function(logpath, options) {
     if (this.checkLog && !this.checkLog(currentLog)) {
       return;
     }
-    this.output && this.output(currentLog);
+    this.output && this.output(currentLog, this.lineNum);
   }.bind(this);
 }
