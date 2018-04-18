@@ -9,7 +9,6 @@ module.exports = function(logpath, options) {
   this.error = options.error || null;
   this.output = options.output || null;
   this.startRE = options.startRE || /^\S/;
-  this.lineNum = fs.readFileSync(logpath, 'utf-8').split("\n").length || 0;
 
   console.log('[log-harvest]', 'starting watch file:', logpath);
   let tail = new Tail(logpath);
@@ -17,8 +16,6 @@ module.exports = function(logpath, options) {
   let currentLog = '';
 
   tail.on("line", (data) => {
-    this.lineNum++;
-
     if(!this.startRE.test(data)) {
       // 多行日志
       currentLog += '\n' + data;
@@ -49,6 +46,6 @@ module.exports = function(logpath, options) {
     if (this.checkLog && !this.checkLog(currentLog)) {
       return;
     }
-    this.output && this.output(currentLog, this.lineNum);
+    this.output && this.output(currentLog);
   }.bind(this);
 }
