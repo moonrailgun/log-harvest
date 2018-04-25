@@ -9,6 +9,7 @@ module.exports = function(logpath, options) {
   this.error = options.error || null;
   this.output = options.output || null;
   this.startRE = options.startRE || /^\S/;
+  this.filter = options.filter || [];
 
   console.log('[log-harvest]', 'starting watch file:', logpath);
   let tail = new Tail(logpath);
@@ -29,6 +30,17 @@ module.exports = function(logpath, options) {
     this.error && this.error(error);
   });
 
+  let checkFilter = function(str) {
+    for (var i = 0; i < this.filter.length; i++) {
+      let pattern = new RegExp(this.filter[i]);
+      if(pattern.test(str)) {
+        console.log('[log-harvest]', str, 'match filter `' + this.filter[i] + '`, ignore log.');
+        return true;
+      }
+    }
+    return false;
+  }.bind(this);
+
   let addLog = function(str) {
     if(!str.trim()) {
       return;
@@ -43,7 +55,7 @@ module.exports = function(logpath, options) {
     }
 
     // 捕获日志
-    if (this.checkLog && !this.checkLog(currentLog)) {
+    if (this.checkLog && !this.checkLog(currentLog) || checkFilter(currentLog)) {
       return;
     }
     this.output && this.output(currentLog);
